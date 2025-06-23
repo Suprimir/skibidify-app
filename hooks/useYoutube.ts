@@ -1,14 +1,22 @@
-import { YOUTUBE_API_KEY } from '@env';
+import { getKey } from 'config/storageConfig';
+import { Alert } from 'react-native';
 
 export const useYoutube = () => {
   const searchSongs = async (searchTerm: string) => {
-    if (!YOUTUBE_API_KEY) {
-      throw new Error('YouTube API key not found');
+    let apiKey, apiUrl;
+
+    try {
+      apiKey = await getKey('YOUTUBE_API_KEY');
+      apiUrl = await getKey('API_BASE_URL');
+    } catch (error: unknown) {
+      Alert.alert('Error', (error as Error).message);
     }
+
+    if (!apiKey || !apiUrl) return;
 
     const endpoint = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(
       searchTerm
-    )}&videoCategoryId=10&maxResults=10&order=relevance&key=${YOUTUBE_API_KEY}`;
+    )}&videoCategoryId=10&maxResults=10&order=relevance&key=${apiKey}`;
 
     try {
       const response = await fetch(endpoint);

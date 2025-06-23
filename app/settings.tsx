@@ -1,16 +1,39 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '../contexts/theme';
-import { Text, View, Pressable, InteractionManager } from 'react-native';
+import {
+  Text,
+  View,
+  Pressable,
+  InteractionManager,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { ThemeAccent } from 'types/Theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
+import { getKey, setKey } from 'config/storageConfig';
 
 export default function Settings() {
+  const [showYouTubeKey, setShowYouTubeKey] = useState(false);
+  const [youtubeInput, setYoutubeInput] = useState<string>('');
+  const [serverInput, setServerInput] = useState<string>('');
   const { setAccent, toggleMode, mode, accent, colors } = useTheme();
   const [isChangingTheme, setIsChangingTheme] = useState(false);
 
+  useEffect(() => {
+    const loadKey = async () => {
+      const youtubeKey = await getKey('YOUTUBE_API_KEY');
+      setYoutubeInput(youtubeKey);
+
+      const serverUrl = await getKey('API_BASE_URL');
+      setServerInput(serverUrl);
+    };
+    loadKey();
+  }, []);
+
   const accents: ThemeAccent[] = ['default', 'pink', 'green'];
 
-  // Colores para las previews de cada tema
   const accentPreviewColors: Record<ThemeAccent, { light: string[]; dark: string[] }> = {
     default: {
       light: ['#f8fafc', '#e2e8f0', '#64748b', '#334155'],
@@ -24,6 +47,20 @@ export default function Settings() {
       light: ['#f0fdf4', '#bbf7d0', '#22c55e', '#15803d'],
       dark: ['#052e16', '#166534', '#22c55e', '#86efac'],
     },
+  };
+
+  const handleSaveYoutube = async () => {
+    if (youtubeInput.trim()) {
+      await setKey('YOUTUBE_API_KEY', youtubeInput.trim());
+      Alert.alert('Succes', 'API Key Saved');
+    }
+  };
+
+  const handleSaveServer = async () => {
+    if (serverInput.trim()) {
+      await setKey('API_BASE_URL', serverInput.trim());
+      Alert.alert('Succes', 'API Url Saved');
+    }
   };
 
   const handleAccentChange = useCallback(
@@ -165,6 +202,67 @@ export default function Settings() {
             <Text className="text-lg capitalize" style={{ color: colors.primary500 }}>
               {mode} • {getAccentDisplayName(accent)}
             </Text>
+          </View>
+        </View>
+
+        <View className="mt-8 px-4">
+          <Text className="mb-3 text-lg font-semibold" style={{ color: colors.primary600 }}>
+            Services
+          </Text>
+          <View className="flex-col gap-4">
+            <View
+              className="flex-row items-center rounded-lg border-2 border-transparent"
+              style={{ backgroundColor: colors.primary50 }}>
+              <View
+                className="flex-row items-center gap-2 rounded-l-lg border-r p-3 font-medium"
+                style={{ borderColor: colors.primary200, backgroundColor: colors.primary100 }}>
+                <Feather name="youtube" size={24} color={colors.primary500} />
+              </View>
+              <TextInput
+                value={youtubeInput}
+                onChangeText={setYoutubeInput}
+                onSubmitEditing={handleSaveYoutube}
+                placeholder="Ingresa tu YouTube API Key"
+                secureTextEntry={showYouTubeKey ? false : true}
+                className="flex-1 bg-transparent p-3"
+                placeholderTextColor={colors.primary400}
+                style={{ color: colors.primary700 }}
+              />
+              <TouchableOpacity
+                onPress={() => setShowYouTubeKey(!showYouTubeKey)}
+                className="flex cursor-pointer justify-center rounded-l-md p-4"
+                style={{ backgroundColor: colors.primary100 }}>
+                {showYouTubeKey ? (
+                  <Feather name="eye-off" size={24} color={colors.primary500} />
+                ) : (
+                  <Feather name="eye" size={24} color={colors.primary500} />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+          <Text className="my-3 text-lg font-semibold" style={{ color: colors.primary600 }}>
+            API Server
+          </Text>
+          <View className="flex-col gap-4">
+            <View
+              className="flex-row items-center rounded-lg border-2 border-transparent"
+              style={{ backgroundColor: colors.primary50 }}>
+              <View
+                className="flex-row items-center gap-2 rounded-l-lg border-r p-3 font-medium"
+                style={{ borderColor: colors.primary200, backgroundColor: colors.primary100 }}>
+                <Feather name="code" size={24} color={colors.primary500} />
+              </View>
+              <TextInput
+                value={serverInput}
+                onChangeText={setServerInput}
+                onSubmitEditing={handleSaveServer}
+                placeholder="Ingresa la IP de tu API"
+                className="flex-1 bg-transparent p-3"
+                placeholderTextColor={colors.primary400}
+                style={{ color: colors.primary700 }}
+                returnKeyType="done"
+              />
+            </View>
           </View>
         </View>
       </View>

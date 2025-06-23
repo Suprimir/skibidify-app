@@ -4,7 +4,7 @@ import { DownloadContext } from './downloadContext';
 import * as FileSystem from 'expo-file-system';
 import type { YouTubeSearchItem } from 'types/YoutubeSearch';
 import { Alert } from 'react-native';
-import { API_BASE_URL } from '@env';
+import { getKey } from 'config/storageConfig';
 
 function decodeHtmlEntities(text: string): string {
   return text
@@ -144,14 +144,14 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
       const id = youtubeItem.id.videoId;
       if (!id) return;
 
+      const apiUrl = await getKey('API_BASE_URL');
+
       setDownloadingId(id);
       setDownloadProgress(0);
       setDownloadPhase('fetching');
-      console.log(API_BASE_URL);
+
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/get-audio-url?videoId=${encodeURIComponent(id)}`
-        );
+        const response = await fetch(`${apiUrl}/get-audio-url?videoId=${encodeURIComponent(id)}`);
         const { audioUrl } = await response.json();
 
         if (!audioUrl) throw new Error('No se pudo obtener la URL de audio');

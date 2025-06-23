@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeAccent, ThemeColors, ThemeMode } from 'types/Theme';
 import { ThemeContext } from './themeContext';
 
-// Definir los colores directamente basados en tu CSS
 const themeColors: Record<`${ThemeMode}-${ThemeAccent}`, ThemeColors> = {
   'light-default': {
     background: '#ffffff',
