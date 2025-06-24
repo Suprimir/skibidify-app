@@ -7,6 +7,7 @@ export interface SongContextType {
   isLoading: boolean;
   refreshSongs: () => Promise<void>;
   refreshPlaylists: () => Promise<void>;
+  deleteSong: (songId: string) => Promise<boolean>;
   createPlaylist: (customName?: string) => Promise<Playlist | null>;
   deletePlaylist: (playlistId: string) => Promise<boolean>;
   updatePlaylist: (playlistId: string, updates: Partial<Playlist>) => Promise<boolean>;

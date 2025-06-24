@@ -68,6 +68,57 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const deleteSong = async (songId: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+
+      const currentSongs = await getAllSongs();
+      const currentPlaylists = await getAllPlaylists();
+
+      const songToDelete = currentSongs.find((song) => song.id === songId);
+
+      if (!songToDelete) {
+        console.error('Canción no encontrada');
+        return false;
+      }
+
+      try {
+        const fileInfo = await FileSystem.getInfoAsync(songToDelete.fileUri);
+        if (fileInfo.exists) {
+          await FileSystem.deleteAsync(songToDelete.fileUri);
+          console.log('Archivo de audio eliminado:', songToDelete.fileUri);
+        }
+      } catch (error) {
+        console.error('Error al eliminar archivo de audio:', error);
+      }
+
+      const updatedSongs = currentSongs.filter((song) => song.id !== songId);
+
+      await FileSystem.writeAsStringAsync(SONGS_DATA_JSON, JSON.stringify(updatedSongs, null, 2));
+
+      const updatedPlaylists = currentPlaylists.map((playlist) => ({
+        ...playlist,
+        songs: playlist.songs.filter((id) => id !== songId),
+      }));
+
+      await FileSystem.writeAsStringAsync(
+        PLAYLISTS_DATA_JSON,
+        JSON.stringify(updatedPlaylists, null, 2)
+      );
+
+      refreshSongs();
+      refreshPlaylists();
+
+      console.log('Canción eliminada exitosamente:', songToDelete.title);
+      return true;
+    } catch (error) {
+      console.error('Error al eliminar canción:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const createPlaylist = async (customName?: string): Promise<Playlist | null> => {
     try {
       setIsLoading(true);
@@ -201,6 +252,7 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
     isLoading,
     refreshSongs,
     refreshPlaylists,
+    deleteSong,
     createPlaylist,
     deletePlaylist,
     updatePlaylist,

@@ -1,5 +1,6 @@
 import { getKey } from 'config/storageConfig';
 import { Alert } from 'react-native';
+import { YouTubeSearchResponse } from 'types/YoutubeSearch';
 
 export const useYoutube = () => {
   const searchSongs = async (searchTerm: string) => {
@@ -23,8 +24,9 @@ export const useYoutube = () => {
       if (!response.ok) {
         throw new Error(`YouTube API error: ${response.status}`);
       }
-      const data = await response.json();
-      return data;
+      const data: YouTubeSearchResponse = await response.json();
+
+      return data.items;
     } catch (error) {
       console.error('Error searching YouTube:', error);
       throw error;
