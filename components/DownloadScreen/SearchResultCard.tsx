@@ -89,7 +89,15 @@ export default function SearchResultCard({ youtubeItem }: SearchResultCardProps)
   return (
     <View
       className="w-full flex-row space-x-4 rounded-xl border p-3"
-      style={{ backgroundColor: colors.primary100, borderColor: colors.primary200 }}>
+      style={{
+        backgroundColor: colors.primary100,
+        borderColor: colors.primary200,
+        shadowColor: colors.primary600,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 6,
+      }}>
       <View
         className="me-2 size-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border"
         style={{ borderColor: colors.primary200 }}>

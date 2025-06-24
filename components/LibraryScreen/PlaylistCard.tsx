@@ -1,19 +1,23 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import React from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 import { useTheme } from 'contexts/theme';
-import { Playlist } from 'types/Song';
+import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, Pressable } from 'react-native';
 
 interface PlaylistCardProps {
-  playlist: Playlist;
+  text: string;
+  icon: keyof typeof Feather.glyphMap;
+  onPress: () => void;
 }
 
-export default function PlaylistCard({ playlist }: PlaylistCardProps) {
+export default function PlaylistCard({ text, icon, onPress }: PlaylistCardProps) {
   const { colors } = useTheme();
 
   return (
-    <TouchableOpacity activeOpacity={0.7}>
+    <Pressable
+      onPress={() => onPress()}
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.7 : 1,
+      })}>
       <View
         className="mb-2 flex-row rounded-lg"
         style={{
@@ -31,16 +35,16 @@ export default function PlaylistCard({ playlist }: PlaylistCardProps) {
             className="absolute inset-0"
             style={{ borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }}
           />
-          <Feather name="book-open" size={32} color={colors.primary200} />
+          <Feather name={icon} size={32} color={colors.primary200} />
         </View>
         <View
           className="flex-1 justify-center rounded-r-lg p-4"
           style={{ backgroundColor: colors.primary100 }}>
           <Text className="text-xl font-bold" style={{ color: colors.primary400 }}>
-            {playlist.name}
+            {text}
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

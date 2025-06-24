@@ -38,12 +38,9 @@ export default function Downloaded() {
       <View className="space-y-2 pb-8 sm:space-y-4">
         <FlatList
           data={songs}
+          contentContainerClassName="gap-4"
           keyExtractor={(song) => song.id ?? Math.random().toString()}
-          renderItem={({ item }) => (
-            <View className="mb-4">
-              <SongCard song={item} />
-            </View>
-          )}
+          renderItem={({ item }) => <SongCard song={item} />}
         />
       </View>
     </SafeAreaView>
