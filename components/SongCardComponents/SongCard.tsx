@@ -36,7 +36,7 @@ export default function SongCard({ song }: SongCardProps) {
         delayLongPress={500}
         className="flex-1">
         <View
-          className="group h-full w-full cursor-pointer flex-row rounded-xl border p-2" // Cambiado a h-full
+          className="group h-full w-full flex-row rounded-xl border p-2"
           style={{
             backgroundColor: colors.primary200,
             borderColor: colors.primary200,

@@ -131,11 +131,11 @@ export default function ModalSongCard({ song, visible, onHide }: ModalSongCardPr
                 borderColor: colors.primary200,
               }}>
               <View
-                className="me-4 h-16 w-16 overflow-hidden rounded-2xl border"
+                className="me-4 h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border"
                 style={{
                   borderColor: colors.primary200,
                 }}>
-                <Image src={song.thumbnail} className="h-full w-full object-cover" />
+                <Image src={song.thumbnail} className="h-[135%] w-[135%] object-cover" />
               </View>
               <View className="flex-1">
                 <Text

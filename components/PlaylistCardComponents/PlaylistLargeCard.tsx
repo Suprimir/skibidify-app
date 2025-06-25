@@ -1,18 +1,18 @@
 import Feather from '@expo/vector-icons/Feather';
 import { useTheme } from 'contexts/theme';
+import { useRouter } from 'expo-router';
 import { View, Text, Pressable, Image } from 'react-native';
 import { Playlist } from 'types/Song';
-import { useState } from 'react';
 import Index from './Modals/Index';
+import { useState } from 'react';
 
-interface PlaylistCardProps {
+interface PlaylistLargeCardProps {
   playlist: Playlist;
-  icon: keyof typeof Feather.glyphMap;
-  onPress: () => void;
 }
 
-export default function PlaylistCard({ playlist, icon, onPress }: PlaylistCardProps) {
+export default function PlaylistLargeCard({ playlist }: PlaylistLargeCardProps) {
   const { colors } = useTheme();
+  const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
 
   const showContextMenu = () => {
@@ -26,30 +26,28 @@ export default function PlaylistCard({ playlist, icon, onPress }: PlaylistCardPr
   return (
     <>
       <Pressable
-        onPress={() => onPress()}
+        onPress={() => router.push(`/playlist?id=${playlist.id}`)}
         onLongPress={showContextMenu}
         delayLongPress={500}
-        style={({ pressed }) => ({
-          opacity: pressed ? 0.7 : 1,
-        })}>
+        className="flex-1">
         <View
-          className="flex-row rounded-lg "
+          className="h-fit w-full items-center rounded-2xl border p-4"
           style={{
+            backgroundColor: colors.primary200,
+            borderColor: colors.primary200,
             shadowColor: colors.primary600,
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.15,
             shadowRadius: 8,
-            elevation: 6,
+            elevation: 4,
           }}>
-          <View style={{ width: '30%', maxWidth: 60 }}>
+          <View style={{ width: '100%', maxWidth: 200 }}>
             <View
               className="items-center justify-center"
               style={{
-                backgroundColor: colors.primary400,
                 flex: 1,
                 aspectRatio: 1,
-                borderTopLeftRadius: 12,
-                borderBottomLeftRadius: 12,
+                borderRadius: 12,
                 borderWidth: 1,
                 borderColor: colors.primary200,
                 overflow: 'hidden',
@@ -57,21 +55,23 @@ export default function PlaylistCard({ playlist, icon, onPress }: PlaylistCardPr
               {playlist.image ? (
                 <Image
                   source={{ uri: playlist.image }}
-                  style={{ width: '100%', height: '100%' }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
                   resizeMode="cover"
                 />
               ) : (
-                <Feather name={icon} size={32} color={colors.primary100} className="p-2" />
+                <Feather name="music" size={100} color={colors.primary600} />
               )}
             </View>
           </View>
-          <View
-            className="flex-1 justify-center rounded-r-lg p-4"
-            style={{ backgroundColor: colors.primary200 }}>
-            <Text className="text-xl font-bold" style={{ color: colors.primary600 }}>
-              {playlist.name}
-            </Text>
-          </View>
+          <Text className="mt-2 font-bold" style={{ color: colors.primary600 }}>
+            {playlist.name}
+          </Text>
+          <Text className="font-bold " style={{ color: colors.primary400 }}>
+            {playlist.songs.length} {playlist.songs.length === 1 ? 'song' : 'songs'}
+          </Text>
         </View>
       </Pressable>
 

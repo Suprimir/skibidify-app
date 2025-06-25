@@ -1,18 +1,40 @@
 import Feather from '@expo/vector-icons/Feather';
 import { useSongs } from 'contexts/song';
 import { useTheme } from 'contexts/theme';
-import { View, Text, Modal, Alert, TouchableOpacity, Pressable } from 'react-native';
+import { View, Image, Text, Modal, Alert, TouchableOpacity, Pressable } from 'react-native';
 import { Playlist } from 'types/Song';
+import * as ImagePicker from 'expo-image-picker';
 
-interface ModalPlaylistCardProps {
+interface MainPlaylistProps {
   playlist: Playlist;
   visible: boolean;
   onHide: () => void;
+  openNameModal: () => void;
 }
 
-export default function ModalPlaylistCard({ playlist, visible, onHide }: ModalPlaylistCardProps) {
+export default function MainPlaylist({
+  playlist,
+  visible,
+  onHide,
+  openNameModal,
+}: MainPlaylistProps) {
   const { colors } = useTheme();
-  const { deletePlaylist } = useSongs();
+  const { updatePlaylist, deletePlaylist } = useSongs();
+
+  const handleImageUpdate = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const image = result.assets[0].uri;
+      updatePlaylist(playlist.id, { image: image });
+    } else {
+      alert('You did not select any image.');
+    }
+  };
 
   const handleDeletePlaylist = () => {
     onHide();
@@ -41,7 +63,6 @@ export default function ModalPlaylistCard({ playlist, visible, onHide }: ModalPl
       <Pressable
         style={{
           flex: 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
           justifyContent: 'flex-end',
         }}
         onPress={onHide}>
@@ -50,21 +71,36 @@ export default function ModalPlaylistCard({ playlist, visible, onHide }: ModalPl
             style={{
               backgroundColor: colors.primary50,
               borderColor: colors.primary200,
-              height: 225,
+              height: 275,
             }}
             className="absolute bottom-0 left-0 right-0 rounded-t-3xl border-l-2 border-r-2 border-t-2">
             <View
-              className="flex-row items-center border-b p-8"
+              className="flex-row items-center border-b p-6"
               style={{
                 borderColor: colors.primary200,
               }}>
-              <View
-                className="me-4 h-16 w-16 items-center justify-center rounded-2xl border"
-                style={{
-                  borderColor: colors.primary200,
-                }}>
-                <Feather name="music" size={24} color={colors.primary600} />
-              </View>
+              <TouchableOpacity onPress={handleImageUpdate} activeOpacity={0.7}>
+                <View
+                  className="me-4 h-16 w-16 items-center justify-center overflow-hidden rounded-xl"
+                  style={{
+                    backgroundColor: colors.primary200,
+                    borderWidth: 2,
+                    borderColor: colors.primary300,
+                  }}>
+                  {playlist.image ? (
+                    <Image
+                      source={{ uri: playlist.image }}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                      }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Feather name="music" size={24} color={colors.primary600} />
+                  )}
+                </View>
+              </TouchableOpacity>
               <View className="flex-1">
                 <Text
                   className="text-lg font-bold"
@@ -80,12 +116,18 @@ export default function ModalPlaylistCard({ playlist, visible, onHide }: ModalPl
                     color: colors.primary600,
                   }}
                   numberOfLines={1}>
-                  {playlist.songs.length} song
-                  {playlist.songs.length > 0 || playlist.songs.length === 0 ? 's' : ''}
+                  {playlist.songs.length} song{playlist.songs.length !== 1 ? 's' : ''}
                 </Text>
               </View>
             </View>
             <View className="pt-8">
+              <TouchableOpacity className="p-4" onPress={openNameModal} activeOpacity={0.7}>
+                <Text
+                  className="text-center text-lg font-bold"
+                  style={{ color: colors.primary600 }}>
+                  Edit playlist name
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity className="p-4" onPress={handleDeletePlaylist} activeOpacity={0.7}>
                 <Text className="text-center text-lg font-bold text-red-500">Delete Playlist</Text>
               </TouchableOpacity>
