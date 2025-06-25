@@ -5,6 +5,7 @@ import * as FileSystem from 'expo-file-system';
 import type { YouTubeSearchItem } from 'types/YoutubeSearch';
 import { Alert } from 'react-native';
 import { getKey } from 'config/storageConfig';
+import { Song } from 'types/Song';
 
 function decodeHtmlEntities(text: string): string {
   return text
@@ -148,24 +149,23 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
       setDownloadingId(id);
       setDownloadProgress(0);
-      setDownloadPhase('fetching');
+      setDownloadPhase('downloading');
 
       try {
-        const response = await fetch(`${apiUrl}/get-audio-url?videoId=${encodeURIComponent(id)}`);
-        const { audioUrl } = await response.json();
-
-        if (!audioUrl) throw new Error('No se pudo obtener la URL de audio');
-
-        setDownloadPhase('downloading');
-
         const fileName =
           youtubeItem.snippet.title.replace(/[\/\\?%*:|"<>]/g, '-').substring(0, 50) + '.mp3';
         const localUri = FileSystem.documentDirectory + fileName;
 
+        const downloadUrl = `${apiUrl}/download-audio?videoId=${encodeURIComponent(id)}&title=${encodeURIComponent(youtubeItem.snippet.title)}`;
+
         const downloadResumable = FileSystem.createDownloadResumable(
-          audioUrl,
+          downloadUrl,
           localUri,
-          {},
+          {
+            headers: {
+              Accept: 'audio/mpeg',
+            },
+          },
           (downloadProgress) => {
             const progress =
               downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
@@ -178,8 +178,7 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
         if (!result?.uri) throw new Error('No se pudo completar la descarga.');
 
-        // Save to songs data
-        let existingData: any[] = [];
+        let existingData: Song[] = [];
         try {
           const fileInfo = await FileSystem.getInfoAsync(SONGS_DATA_JSON);
           if (fileInfo.exists) {
@@ -199,15 +198,17 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
             fileUri: result.uri,
             thumbnail: youtubeItem.snippet.thumbnails.high.url,
             channelTitle: youtubeItem.snippet.channelTitle,
+            addedAt: Date.now().toString(),
+            favorite: false,
           });
 
           await FileSystem.writeAsStringAsync(SONGS_DATA_JSON, JSON.stringify(existingData));
         }
 
         await refreshSongs();
-        showAlert('success', 'Download finished', 'Song downloaded successfully');
+        showAlert('success', 'Descarga completada', 'Canción descargada exitosamente');
       } catch (error) {
-        showAlert('error', 'Download failed', 'Network error occurred');
+        showAlert('error', 'Error de descarga', 'Ocurrió un error de red');
         console.error('Error downloading song:', error);
       } finally {
         setDownloadingId(null);
