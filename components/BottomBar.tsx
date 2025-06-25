@@ -1,45 +1,70 @@
-import Feather from '@expo/vector-icons/Feather';
-import { Link, usePathname } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
+import { View, Text, Pressable } from 'react-native';
+import { useRouter, usePathname } from 'expo-router';
+import { useTheme } from 'contexts/theme';
+import { Feather } from '@expo/vector-icons';
+
+const tabs = [
+  { name: '/', title: 'Inicio', icon: 'home' as const },
+  { name: '/download', title: 'Descargar', icon: 'download' as const },
+  { name: '/library', title: 'Biblioteca', icon: 'book-open' as const },
+  { name: '/settings', title: 'Settings', icon: 'settings' as const },
+];
 
 export default function BottomBar() {
   const { colors } = useTheme();
+  const router = useRouter();
   const pathname = usePathname();
 
-  const navItems = [
-    { href: '/', icon: 'home', label: 'Home' },
-    { href: '/download', icon: 'download', label: 'Download' },
-    { href: '/library', icon: 'book', label: 'Library' },
-    { href: '/settings', icon: 'settings', label: 'Settings' },
-  ];
+  const handleTabPress = (tabPath: string) => {
+    router.push(tabPath);
+  };
+
+  const isTabActive = (tabPath: string) => {
+    if (tabPath === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(tabPath);
+  };
 
   return (
     <View
-      className="flex-row justify-between border-t px-4 pb-8 pt-2"
+      className="flex-row items-center justify-between px-8 pb-4"
       style={{
-        backgroundColor: colors.background,
-        borderColor: colors.border,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 88,
+        backgroundColor: colors.primary100,
+        borderTopColor: colors.primary200,
+        borderTopWidth: 1,
       }}>
-      {navItems.map(({ href, icon, label }) => {
-        const isActive = pathname === href;
+      {tabs.map((tab) => {
+        const isActive = isTabActive(tab.name);
 
         return (
-          <Link key={href} asChild href={href}>
-            <Pressable
-              className="flex items-center rounded-full px-5 py-1"
+          <Pressable
+            className="items-center"
+            key={tab.name}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.6 : isActive ? 1 : 0.7,
+            })}
+            onPress={() => handleTabPress(tab.name)}>
+            <Feather
+              name={tab.icon}
+              size={24}
+              color={isActive ? colors.primary500 : colors.primary400}
+            />
+            <Text
               style={{
-                backgroundColor: isActive ? colors.primary100 : colors.background,
+                fontSize: 12,
+                fontWeight: '600',
+                color: isActive ? colors.primary500 : colors.primary400,
+                marginTop: 4,
               }}>
-              <Feather name={icon as any} size={24} color={colors.primary700} />
-              <Text
-                style={{
-                  color: colors.primary700,
-                }}>
-                {label}
-              </Text>
-            </Pressable>
-          </Link>
+              {tab.title}
+            </Text>
+          </Pressable>
         );
       })}
     </View>

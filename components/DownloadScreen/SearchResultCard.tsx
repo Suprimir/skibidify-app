@@ -90,7 +90,7 @@ export default function SearchResultCard({ youtubeItem }: SearchResultCardProps)
     <View
       className="w-full flex-row space-x-4 rounded-xl border p-3"
       style={{
-        backgroundColor: colors.primary100,
+        backgroundColor: colors.primary200,
         borderColor: colors.primary200,
         shadowColor: colors.primary600,
         shadowOffset: { width: 0, height: 4 },

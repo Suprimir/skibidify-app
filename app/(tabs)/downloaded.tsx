@@ -1,10 +1,9 @@
 import { Feather } from '@expo/vector-icons';
-import SongCard from 'components/SongCard';
+import SongCard from 'components/SongCardComponents/SongCard';
 import { usePlayer } from 'contexts/player';
 import { useSongs } from 'contexts/song';
 import { useTheme } from 'contexts/theme';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Downloaded() {
   const { songs } = useSongs();
@@ -12,11 +11,17 @@ export default function Downloaded() {
   const { setQueue, setShuffleQueue } = usePlayer();
 
   return (
-    <SafeAreaView className="flex-1 px-4">
-      <View className="mb-2 flex-row items-center justify-between">
-        <Text className="mb-4 text-4xl font-bold" style={{ color: colors.primary600 }}>
-          Descargas
-        </Text>
+    <View className="flex-1">
+      <View className="flex-row items-center justify-between p-4">
+        <View>
+          <Text className="text-4xl font-bold" style={{ color: colors.primary600 }}>
+            Downloaded
+          </Text>
+          <Text className="text-lg font-medium" style={{ color: colors.primary600 }}>
+            {songs.length} song
+            {songs.length > 1 || songs.length === 0 ? 's' : ''}
+          </Text>
+        </View>
         <View className="flex-row items-center gap-2">
           <TouchableOpacity activeOpacity={0.7} onPress={() => setQueue(songs)}>
             <View
@@ -35,14 +40,13 @@ export default function Downloaded() {
         </View>
       </View>
 
-      <View className="space-y-2 pb-8 sm:space-y-4">
-        <FlatList
-          data={songs}
-          contentContainerClassName="gap-4"
-          keyExtractor={(song) => song.id ?? Math.random().toString()}
-          renderItem={({ item }) => <SongCard song={item} />}
-        />
-      </View>
-    </SafeAreaView>
+      <FlatList
+        data={songs}
+        contentContainerClassName="gap-4 p-4"
+        contentContainerStyle={{ paddingBottom: 172 }}
+        keyExtractor={(song) => song.id ?? Math.random().toString()}
+        renderItem={({ item }) => <SongCard song={item} />}
+      />
+    </View>
   );
 }

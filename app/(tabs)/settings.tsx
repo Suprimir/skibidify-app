@@ -1,5 +1,5 @@
 import SettingsContent from 'components/SettingsScreen/SettingsContent';
-import { useTheme } from '../contexts/theme';
+import { useTheme } from 'contexts/theme';
 import { Text, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 
 export default function Settings() {
