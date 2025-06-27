@@ -2,7 +2,6 @@ import { usePlayer } from 'contexts/player';
 import { View, Image, Text, Pressable } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { useTheme } from 'contexts/theme/ThemeProvider';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import ModalSongPlaying from './SongPlayingScreen/ModalSongPlaying';
 
@@ -25,11 +24,6 @@ export default function PlayerBar() {
           style={{
             backgroundColor: colors.primary100,
             borderColor: colors.primary200,
-            shadowColor: colors.primary600,
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            elevation: 2,
           }}>
           <View
             className="h-14 w-14 items-center justify-center"
@@ -50,10 +44,23 @@ export default function PlayerBar() {
             <Text
               numberOfLines={1}
               className="text-sm font-semibold"
-              style={{ color: colors.primary800 }}>
+              style={{
+                color: colors.primary800,
+                textShadowColor: colors.primary200,
+                textShadowOffset: { width: 1, height: 1 },
+                textShadowRadius: 1,
+              }}>
               {songPlaying.title}
             </Text>
-            <Text numberOfLines={1} className="text-xs" style={{ color: colors.primary600 }}>
+            <Text
+              numberOfLines={1}
+              className="text-xs"
+              style={{
+                color: colors.primary600,
+                textShadowColor: colors.primary200,
+                textShadowOffset: { width: 1, height: 1 },
+                textShadowRadius: 1,
+              }}>
               {songPlaying.channelTitle}
             </Text>
           </View>

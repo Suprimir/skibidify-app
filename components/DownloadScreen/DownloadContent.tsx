@@ -16,7 +16,7 @@ export default function DownloadContent() {
         data={searchItems}
         contentContainerClassName="gap-4 p-4"
         contentContainerStyle={{ paddingBottom: 172 }}
-        keyExtractor={(searchItem) => searchItem.id.videoId ?? 'xd'}
+        keyExtractor={(searchItem) => searchItem.id}
         renderItem={({ item }) => <SearchResultCard key={item.id.videoId} youtubeItem={item} />}
       />
     </View>

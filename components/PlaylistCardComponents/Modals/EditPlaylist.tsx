@@ -32,9 +32,10 @@ export default function EditPlaylist({ playlist, visible, onHide }: EditPlaylist
         onPress={onHide}>
         <Pressable onPress={(e) => e.stopPropagation()}></Pressable>
         <View className="flex-1 items-center justify-center">
-          <View className="w-[80vw] rounded-2xl p-4" style={{ backgroundColor: colors.primary200 }}>
+          <View
+            className="w-[80vw] rounded-2xl border-2 p-4"
+            style={{ backgroundColor: colors.primary50, borderColor: colors.primary300 }}>
             <View className="flex-row items-center gap-2">
-              <Feather name="edit-2" size={20} color={colors.primary600} />
               <Text className="my-2 text-xl font-bold" style={{ color: colors.primary600 }}>
                 Change the playlist name
               </Text>

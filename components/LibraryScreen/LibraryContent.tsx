@@ -3,7 +3,7 @@ import PlaylistCard from 'components/PlaylistCardComponents/PlaylistCard';
 import { useRouter } from 'expo-router';
 import { useSongs } from 'contexts/song';
 import { useTheme } from 'contexts/theme';
-import SimpleCard from 'components/SimpleCard';
+import SimpleCard from 'components/LibraryScreen/SimpleCard';
 
 export default function LibraryContent() {
   const router = useRouter();
@@ -12,7 +12,7 @@ export default function LibraryContent() {
 
   return (
     <View className="mt-4 gap-2">
-      <View className="px-4 pb-4">
+      <View className="gap-2 px-4 pb-4">
         <SimpleCard text="New Playlist" icon="plus" onPress={createPlaylist} />
         <SimpleCard text="Downloads" icon="download" onPress={() => router.push('/downloaded')} />
       </View>

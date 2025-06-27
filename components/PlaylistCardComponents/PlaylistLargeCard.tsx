@@ -33,13 +33,8 @@ export default function PlaylistLargeCard({ playlist }: PlaylistLargeCardProps) 
         <View
           className="h-fit w-full items-center rounded-2xl border p-4"
           style={{
-            backgroundColor: colors.primary200,
-            borderColor: colors.primary200,
-            shadowColor: colors.primary600,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            elevation: 4,
+            backgroundColor: colors.primary100,
+            borderColor: colors.primary300,
           }}>
           <View style={{ width: '100%', maxWidth: 200 }}>
             <View
@@ -50,6 +45,7 @@ export default function PlaylistLargeCard({ playlist }: PlaylistLargeCardProps) 
                 borderRadius: 12,
                 borderWidth: 1,
                 borderColor: colors.primary200,
+                backgroundColor: colors.primary50,
                 overflow: 'hidden',
               }}>
               {playlist.image ? (
@@ -66,10 +62,24 @@ export default function PlaylistLargeCard({ playlist }: PlaylistLargeCardProps) 
               )}
             </View>
           </View>
-          <Text className="mt-2 font-bold" style={{ color: colors.primary600 }}>
+          <Text
+            className="mt-2 font-bold"
+            style={{
+              color: colors.primary800,
+              textShadowColor: colors.primary200,
+              textShadowOffset: { width: 1, height: 1 },
+              textShadowRadius: 1,
+            }}>
             {playlist.name}
           </Text>
-          <Text className="font-bold " style={{ color: colors.primary400 }}>
+          <Text
+            className="font-bold "
+            style={{
+              color: colors.primary400,
+              textShadowColor: colors.primary200,
+              textShadowOffset: { width: 1, height: 1 },
+              textShadowRadius: 1,
+            }}>
             {playlist.songs.length} {playlist.songs.length === 1 ? 'song' : 'songs'}
           </Text>
         </View>

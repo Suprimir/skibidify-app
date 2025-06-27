@@ -9,6 +9,8 @@ export interface Song {
   favorite: boolean;
 }
 
+export type SongBase = Omit<Song, 'fileUri' | 'addedAt' | 'favorite'>;
+
 export interface Playlist {
   id: string;
   image: string;

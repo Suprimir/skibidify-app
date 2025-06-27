@@ -24,11 +24,6 @@ export default function CurrentThemeBox() {
         backgroundColor: colors.primary200,
         borderColor: colors.primary300,
         borderWidth: 1,
-        shadowColor: colors.primary600,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 6,
       }}>
       <Text className="mb-1 text-sm font-medium" style={{ color: colors.primary700 }}>
         Current Theme

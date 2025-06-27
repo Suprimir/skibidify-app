@@ -1,13 +1,14 @@
 import { View, Text } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
-import { Slider } from 'react-native-awesome-slider';
+import Slider from '@react-native-community/slider';
 import { usePlayer } from 'contexts/player';
 import { useTheme } from 'contexts/theme';
-import { useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function ControlSlider() {
   const { currentTime, duration, handleSeek } = usePlayer();
   const { colors } = useTheme();
+  const [sliderValue, setSliderValue] = useState(0);
+  const isSeeking = useRef(false);
 
   const formatTime = (sec: number) => {
     const minutes = Math.floor(sec / 60);
@@ -15,47 +16,49 @@ export default function ControlSlider() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const progress = useSharedValue(0);
-  const min = useSharedValue(0);
-  const max = useSharedValue(1);
-
   useEffect(() => {
-    progress.value = currentTime;
+    if (!isSeeking.current) {
+      setSliderValue(currentTime || 0);
+    }
   }, [currentTime]);
 
-  useEffect(() => {
-    max.value = duration > 0 ? duration : 1;
-  }, [duration]);
+  const onSlidingStart = () => {
+    isSeeking.current = true;
+  };
+
+  const onValueChange = (value: number) => {
+    setSliderValue(value);
+  };
+
+  const onSlidingComplete = (value: number) => {
+    isSeeking.current = false;
+    handleSeek(value);
+  };
 
   return (
     <View className="w-full">
       <View
         style={{
-          paddingHorizontal: 20,
-          paddingVertical: 20,
+          paddingHorizontal: 10,
+          paddingVertical: 10,
           width: '100%',
         }}>
         <Slider
-          progress={progress}
-          minimumValue={min}
-          maximumValue={max}
-          onSlidingComplete={(value) => handleSeek(value)}
-          theme={{
-            disableMinTrackTintColor: colors.primary200,
-            maximumTrackTintColor: colors.primary200,
-            minimumTrackTintColor: colors.primary400,
-            cacheTrackTintColor: colors.primary300,
-            bubbleBackgroundColor: colors.primary400,
-          }}
-          containerStyle={{
-            width: '100%',
-          }}
-          renderBubble={() => null}
+          style={{ width: '100%' }}
+          value={sliderValue}
+          minimumValue={0}
+          maximumValue={duration > 0 ? duration : 1}
+          onSlidingStart={onSlidingStart}
+          onValueChange={onValueChange}
+          onSlidingComplete={onSlidingComplete}
+          minimumTrackTintColor={colors.primary400}
+          maximumTrackTintColor={colors.primary200}
+          thumbTintColor={colors.primary400}
         />
       </View>
       <View className="mt-1 flex-row justify-between px-1">
-        <Text className="text-xs text-gray-400">{formatTime(currentTime)}</Text>
-        <Text className="text-xs text-gray-400">{formatTime(duration)}</Text>
+        <Text className="text-xs text-gray-400">{formatTime(currentTime || 0)}</Text>
+        <Text className="text-xs text-gray-400">{formatTime(duration || 0)}</Text>
       </View>
     </View>
   );

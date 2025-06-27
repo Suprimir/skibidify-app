@@ -28,11 +28,6 @@ export default function ThemeModeButton() {
       style={{
         backgroundColor: colors.primary200,
         opacity: isChangingTheme ? 0.5 : 1,
-        shadowColor: colors.primary600,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 6,
       }}>
       <Text className="text-center font-medium" style={{ color: colors.primary600 }}>
         {mode === 'light' ? '🌙 Switch to Dark Mode' : '☀️ Switch to Light Mode'}

@@ -41,11 +41,6 @@ export default function ServicesInput({
         style={{
           backgroundColor: colors.primary100,
           borderColor: colors.primary300,
-          shadowColor: colors.primary600,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.15,
-          shadowRadius: 8,
-          elevation: 6,
         }}>
         <View
           className="flex-row items-center gap-2 rounded-l-lg border-r p-4 font-medium"

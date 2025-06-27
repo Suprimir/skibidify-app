@@ -1,4 +1,4 @@
-export type YouTubeSearchResponse = {
+export type SearchResponse = {
   kind: string;
   etag: string;
   nextPageToken?: string;
@@ -7,31 +7,54 @@ export type YouTubeSearchResponse = {
     totalResults: number;
     resultsPerPage: number;
   };
-  items: YouTubeSearchItem[];
+  items: SearchItem[];
 };
 
-export type YouTubeSearchItem = {
-  kind: 'youtube#searchResult';
+export type VideoResponse = {
+  kind: string;
   etag: string;
-  id: {
-    kind: 'youtube#video' | 'youtube#channel' | 'youtube#playlist';
-    videoId?: string;
-    channelId?: string;
-    playlistId?: string;
-  };
+  items: VideoItem[];
+};
+
+export type PlaylistResponse = {
+  kind: 'youtube#playlistItemListResponse';
+  etag: string;
+  items: PlaylistItem[];
+};
+
+export type SearchItem = {
+  id: { videoId?: string };
   snippet: {
-    publishedAt: string;
-    channelId: string;
     title: string;
-    description: string;
-    thumbnails: {
-      default: Thumbnail;
-      medium: Thumbnail;
-      high: Thumbnail;
-    };
     channelTitle: string;
-    liveBroadcastContent: 'none' | 'live' | 'upcoming';
-    publishTime: string;
+    description: string;
+    thumbnails?: {
+      [key: string]: { url: string };
+    };
+  };
+};
+
+export type PlaylistItem = {
+  snippet: {
+    resourceId: { videoId: string };
+    title: string;
+    channelTitle: string;
+    description: string;
+    thumbnails?: {
+      [key: string]: { url: string };
+    };
+  };
+};
+
+export type VideoItem = {
+  id: string;
+  snippet: {
+    title: string;
+    channelTitle: string;
+    description: string;
+    thumbnails?: {
+      [key: string]: { url: string };
+    };
   };
 };
 

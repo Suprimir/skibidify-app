@@ -70,11 +70,6 @@ export default function ThemeAccentButton({ colorScheme }: ColorSchemeButtonProp
           borderColor: isSelected ? colors.primary500 : colors.border,
           transform: [{ scale: isSelected ? 1.05 : 1 }],
           opacity: isChangingTheme ? 0.5 : 1,
-          shadowColor: currentColors[2],
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.15,
-          shadowRadius: 8,
-          elevation: 6,
         }}>
         <View className="flex h-full w-full flex-col overflow-hidden rounded-lg">
           <View className="flex-1 flex-row">

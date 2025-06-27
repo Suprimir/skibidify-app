@@ -3,7 +3,7 @@ import type { Song } from 'types/Song';
 import { View, Image, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from 'contexts/theme/ThemeProvider';
 import { usePlayer } from 'contexts/player';
-import ModalSongCard from './ModalSongCard';
+import Index from './Modals/Index';
 
 interface SongCardProps {
   song: Song;
@@ -33,25 +33,20 @@ export default function SongCard({ song }: SongCardProps) {
         activeOpacity={0.7}
         onPress={handleRegularPress}
         onLongPress={showContextMenu}
-        delayLongPress={500}
-        className="flex-1">
+        delayLongPress={500}>
         <View
-          className="group h-full w-full flex-row rounded-xl border p-2"
+          className="group w-full flex-row rounded-xl border p-2"
           style={{
-            backgroundColor: colors.primary200,
-            borderColor: colors.primary200,
-            shadowColor: colors.primary600,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            elevation: 6,
+            backgroundColor: colors.primary100,
+            borderColor: colors.primary300,
+            minHeight: 76, // 60px del icono + 16px de padding
           }}>
-          <View style={{ width: '30%', maxWidth: 60 }}>
+          <View style={{ width: '30%', maxWidth: 60, height: 60 }}>
             <View
               className="items-center justify-center"
               style={{
-                flex: 1,
-                aspectRatio: 1,
+                width: '100%',
+                height: '100%',
                 borderRadius: 12,
                 borderWidth: 1,
                 borderColor: colors.primary200,
@@ -69,20 +64,30 @@ export default function SongCard({ song }: SongCardProps) {
             <Text
               numberOfLines={1}
               className="text-sm font-bold leading-tight "
-              style={{ color: colors.primary800 }}>
+              style={{
+                color: colors.primary800,
+                textShadowColor: colors.primary200,
+                textShadowOffset: { width: 1, height: 1 },
+                textShadowRadius: 1,
+              }}>
               {song.title}
             </Text>
             <Text
               numberOfLines={1}
               className="mt-0.5 text-xs font-medium"
-              style={{ color: colors.primary600 }}>
+              style={{
+                color: colors.primary600,
+                textShadowColor: colors.primary200,
+                textShadowOffset: { width: 1, height: 1 },
+                textShadowRadius: 1,
+              }}>
               {song.channelTitle}
             </Text>
           </View>
         </View>
       </TouchableOpacity>
 
-      <ModalSongCard song={song} visible={modalVisible} onHide={hideContextMenu} />
+      <Index song={song} visible={modalVisible} onHide={hideContextMenu} />
     </>
   );
 }

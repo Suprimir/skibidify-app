@@ -43,7 +43,7 @@ export default function Downloaded() {
       <FlatList
         data={songs}
         contentContainerClassName="gap-4 p-4"
-        contentContainerStyle={{ paddingBottom: 172 }}
+        contentContainerStyle={{ paddingBottom: 96 }}
         keyExtractor={(song) => song.id ?? Math.random().toString()}
         renderItem={({ item }) => <SongCard song={item} />}
       />

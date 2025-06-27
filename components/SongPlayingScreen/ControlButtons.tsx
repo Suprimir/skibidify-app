@@ -28,11 +28,6 @@ export default function ControlButtons() {
           className="rounded-full p-3"
           style={{
             backgroundColor: colors.primary200,
-            shadowColor: colors.primary600,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            elevation: 6,
           }}>
           <Feather
             name={paused ? 'play-circle' : 'pause-circle'}
@@ -46,11 +41,6 @@ export default function ControlButtons() {
           className="rounded-full p-3"
           style={{
             backgroundColor: colors.primary200,
-            shadowColor: colors.primary600,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            elevation: 6,
           }}>
           <Feather name="arrow-right" color={colors.primary400} size={32} />
         </View>

@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useTheme } from 'contexts/theme';
 import { Feather } from '@expo/vector-icons';
-import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabsLayout() {
@@ -31,21 +30,21 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: 'Home',
           tabBarIcon: ({ color, size }) => <Feather name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="download"
         options={{
-          title: 'Descargar',
+          title: 'Download',
           tabBarIcon: ({ color, size }) => <Feather name="download" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="library"
         options={{
-          title: 'Biblioteca',
+          title: 'Library',
           tabBarIcon: ({ color, size }) => <Feather name="book-open" size={size} color={color} />,
         }}
       />

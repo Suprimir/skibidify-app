@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, Pressable } from 'react-native';
+import { Modal, View } from 'react-native';
 import MainPlaylist from './MainPlaylist';
 import { Playlist } from 'types/Song';
 import EditPlaylist from './EditPlaylist';
@@ -17,9 +17,9 @@ export default function Index({ playlist, visible, onHide }: IndexProps) {
 
   useEffect(() => {
     if (visible) {
-      setActiveModal('main'); // Siempre empezar con el modal principal
+      setActiveModal('main');
     } else {
-      setActiveModal(null); // Cerrar todos los modales
+      setActiveModal(null);
     }
   }, [visible]);
 

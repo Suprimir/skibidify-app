@@ -1,12 +1,12 @@
-import type { YouTubeSearchItem } from 'types/YoutubeSearch';
 import { useDownload } from 'contexts/download';
 import { useSongs } from 'contexts/song';
 import { Pressable, View, Image, Text, ActivityIndicator } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { useTheme } from 'contexts/theme';
+import { SongBase } from 'types/Song';
 
 interface SearchResultCardProps {
-  youtubeItem: YouTubeSearchItem;
+  youtubeItem: SongBase;
 }
 
 export default function SearchResultCard({ youtubeItem }: SearchResultCardProps) {
@@ -31,7 +31,7 @@ export default function SearchResultCard({ youtubeItem }: SearchResultCardProps)
       .replace(/&nbsp;/g, ' ');
   }
 
-  const videoId = youtubeItem.id.videoId;
+  const videoId = youtubeItem.id;
 
   const isDownloaded = songs.some((song) => song.id === videoId);
 
@@ -90,19 +90,14 @@ export default function SearchResultCard({ youtubeItem }: SearchResultCardProps)
     <View
       className="w-full flex-row space-x-4 rounded-xl border p-3"
       style={{
-        backgroundColor: colors.primary200,
-        borderColor: colors.primary200,
-        shadowColor: colors.primary600,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 6,
+        backgroundColor: colors.primary100,
+        borderColor: colors.primary300,
       }}>
       <View
         className="me-2 size-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border"
         style={{ borderColor: colors.primary200 }}>
         <Image
-          source={{ uri: youtubeItem.snippet.thumbnails.high.url }}
+          source={{ uri: youtubeItem.thumbnail }}
           className="h-36 w-36 rounded-lg object-cover"
         />
       </View>
@@ -113,13 +108,13 @@ export default function SearchResultCard({ youtubeItem }: SearchResultCardProps)
             className="flex-shrink truncate text-base font-bold"
             style={{ color: colors.primary800 }}
             numberOfLines={1}>
-            {decodeHtmlEntities(youtubeItem.snippet.title)}
+            {decodeHtmlEntities(youtubeItem.title)}
           </Text>
           <Text
             className="flex-shrink truncate text-sm"
             style={{ color: colors.primary600 }}
             numberOfLines={1}>
-            {youtubeItem.snippet.channelTitle}
+            {youtubeItem.channelTitle}
           </Text>
 
           {isCurrentlyDownloading && (
