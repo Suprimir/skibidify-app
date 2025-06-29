@@ -1,6 +1,6 @@
-import { getKey } from '../../config/storageConfig';
+import { getKey } from '../config/storageConfig';
 import { Alert } from 'react-native';
-import { SongBase } from '../../types/Song';
+import { SongBase } from '../types/Song';
 import {
   PlaylistItem,
   PlaylistResponse,
@@ -8,7 +8,7 @@ import {
   SearchResponse,
   VideoItem,
   VideoResponse,
-} from '../../types/YoutubeSearch';
+} from '../types/YoutubeSearch';
 
 export function convertToSongs(
   items: SearchItem[] | PlaylistItem[] | VideoItem[],
