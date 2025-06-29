@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useSongs } from '../song/';
 import { DownloadContext } from './downloadContext';
-import * as FileSystem from 'expo-file-system';
+import RNFS from 'react-native-fs';
 import { Alert } from 'react-native';
-import { getKey } from 'config/storageConfig';
-import { Song, SongBase } from 'types/Song';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getKey } from '../../config/storageConfig';
+import { Song, SongBase } from '../../types/Song';
 
 function decodeHtmlEntities(text: string): string {
   return text
@@ -21,26 +22,22 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
   const [downloadingQueue, setDownloadingQueue] = useState<SongBase[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
-  const [downloadPhase, setDownloadPhase] = useState<'fetching' | 'downloading' | null>(null);
+  const [downloadPhase, setDownloadPhase] = useState<
+    'fetching' | 'downloading' | null
+  >(null);
 
   const { songs, refreshSongs } = useSongs();
 
-  const SONGS_DATA_JSON = FileSystem.documentDirectory + 'songs-data.json';
-  const DOWNLOAD_QUEUE_JSON = FileSystem.documentDirectory + 'download-queue.json';
-  const DOWNLOADING_ID_JSON = FileSystem.documentDirectory + 'downloading-id.json';
+  const SONGS_DATA_JSON = `${RNFS.DocumentDirectoryPath}/songs-data.json`;
+  const DOWNLOAD_QUEUE_KEY = 'download_queue';
+  const DOWNLOADING_ID_KEY = 'downloading_id';
 
   const saveDownloadingId = async (id: string | null) => {
     try {
       if (id) {
-        await FileSystem.writeAsStringAsync(
-          DOWNLOADING_ID_JSON,
-          JSON.stringify({ downloadingId: id })
-        );
+        await AsyncStorage.setItem(DOWNLOADING_ID_KEY, id);
       } else {
-        const fileInfo = await FileSystem.getInfoAsync(DOWNLOADING_ID_JSON);
-        if (fileInfo.exists) {
-          await FileSystem.deleteAsync(DOWNLOADING_ID_JSON);
-        }
+        await AsyncStorage.removeItem(DOWNLOADING_ID_KEY);
       }
     } catch (error) {
       console.error('Error saving downloadingId:', error);
@@ -49,27 +46,20 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
   const loadDownloadingId = async (): Promise<string | null> => {
     try {
-      const fileInfo = await FileSystem.getInfoAsync(DOWNLOADING_ID_JSON);
-      if (fileInfo.exists) {
-        const content = await FileSystem.readAsStringAsync(DOWNLOADING_ID_JSON);
-        const data = JSON.parse(content);
-        return data.downloadingId || null;
-      }
+      const id = await AsyncStorage.getItem(DOWNLOADING_ID_KEY);
+      return id;
     } catch (error) {
       console.error('Error loading downloadingId:', error);
+      return null;
     }
-    return null;
   };
 
   const saveDownloadQueue = async (queue: SongBase[]) => {
     try {
       if (queue.length > 0) {
-        await FileSystem.writeAsStringAsync(DOWNLOAD_QUEUE_JSON, JSON.stringify(queue));
+        await AsyncStorage.setItem(DOWNLOAD_QUEUE_KEY, JSON.stringify(queue));
       } else {
-        const fileInfo = await FileSystem.getInfoAsync(DOWNLOAD_QUEUE_JSON);
-        if (fileInfo.exists) {
-          await FileSystem.deleteAsync(DOWNLOAD_QUEUE_JSON);
-        }
+        await AsyncStorage.removeItem(DOWNLOAD_QUEUE_KEY);
       }
     } catch (error) {
       console.error('Error saving download queue:', error);
@@ -78,10 +68,9 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
   const loadDownloadQueue = async (): Promise<SongBase[]> => {
     try {
-      const fileInfo = await FileSystem.getInfoAsync(DOWNLOAD_QUEUE_JSON);
-      if (fileInfo.exists) {
-        const content = await FileSystem.readAsStringAsync(DOWNLOAD_QUEUE_JSON);
-        return JSON.parse(content);
+      const queueData = await AsyncStorage.getItem(DOWNLOAD_QUEUE_KEY);
+      if (queueData) {
+        return JSON.parse(queueData);
       }
     } catch (error) {
       console.error('Error loading download queue:', error);
@@ -116,10 +105,10 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
     if (!videoId) return;
 
-    if (songs.find((song) => song.id === videoId)) return;
+    if (songs.find(song => song.id === videoId)) return;
 
-    setDownloadingQueue((prev) => {
-      const exists = prev.some((item) => item.id === youtubeItem.id);
+    setDownloadingQueue(prev => {
+      const exists = prev.some(item => item.id === youtubeItem.id);
       if (exists) {
         return prev;
       }
@@ -132,10 +121,14 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
     if (downloadingId === videoId) return;
 
-    setDownloadingQueue((prev) => prev.filter((item) => item.id !== videoId));
+    setDownloadingQueue(prev => prev.filter(item => item.id !== videoId));
   };
 
-  const showAlert = (type: 'success' | 'error', title: string, message: string) => {
+  const showAlert = (
+    type: 'success' | 'error',
+    title: string,
+    message: string,
+  ) => {
     Alert.alert(title, message);
   };
 
@@ -152,60 +145,70 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         const fileName =
-          youtubeItem.title.replace(/[\/\\?%*:|"<>]/g, '-').substring(0, 50) + '.mp3';
-        const localUri = FileSystem.documentDirectory + fileName;
+          youtubeItem.title.replace(/[\/\\?%*:|"<>]/g, '-').substring(0, 50) +
+          '.mp3';
+        const localPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
 
-        const downloadUrl = `${apiUrl}/download-audio?videoId=${encodeURIComponent(id)}&title=${encodeURIComponent(youtubeItem.title)}`;
+        const downloadUrl = `${apiUrl}/download-audio?videoId=${encodeURIComponent(
+          id,
+        )}&title=${encodeURIComponent(youtubeItem.title)}`;
 
-        const downloadResumable = FileSystem.createDownloadResumable(
-          downloadUrl,
-          localUri,
-          {
-            headers: {
-              Accept: 'audio/mpeg',
-            },
+        const downloadOptions = {
+          fromUrl: downloadUrl,
+          toFile: localPath,
+          headers: {
+            Accept: 'audio/mpeg',
           },
-          (downloadProgress) => {
-            const progress =
-              downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+          progress: (res: any) => {
+            const progress = res.bytesWritten / res.contentLength;
             const progressPercentage = Math.round(progress * 100);
             setDownloadProgress(progressPercentage);
-          }
-        );
+          },
+        };
 
-        const result = await downloadResumable.downloadAsync();
+        const result = await RNFS.downloadFile(downloadOptions).promise;
 
-        if (!result?.uri) throw new Error('No se pudo completar la descarga.');
+        if (result.statusCode !== 200) {
+          throw new Error('No se pudo completar la descarga.');
+        }
 
         let existingData: Song[] = [];
         try {
-          const fileInfo = await FileSystem.getInfoAsync(SONGS_DATA_JSON);
-          if (fileInfo.exists) {
-            const content = await FileSystem.readAsStringAsync(SONGS_DATA_JSON);
+          const fileExists = await RNFS.exists(SONGS_DATA_JSON);
+          if (fileExists) {
+            const content = await RNFS.readFile(SONGS_DATA_JSON, 'utf8');
             existingData = JSON.parse(content);
           }
         } catch {
           existingData = [];
         }
 
-        const exists = existingData.some((song) => song.id === id);
+        const exists = existingData.some(song => song.id === id);
 
         if (!exists) {
           existingData.push({
             id: id,
             title: decodeHtmlEntities(youtubeItem.title),
-            fileUri: result.uri,
+            fileUri: `file://${localPath}`,
             thumbnail: youtubeItem.thumbnail,
             channelTitle: youtubeItem.channelTitle,
             addedAt: Date.now().toString(),
             favorite: false,
           });
 
-          await FileSystem.writeAsStringAsync(SONGS_DATA_JSON, JSON.stringify(existingData));
+          await RNFS.writeFile(
+            SONGS_DATA_JSON,
+            JSON.stringify(existingData),
+            'utf8',
+          );
         }
 
         await refreshSongs();
-        showAlert('success', 'Descarga completada', 'Canción descargada exitosamente');
+        showAlert(
+          'success',
+          'Descarga completada',
+          'Canción descargada exitosamente',
+        );
       } catch (error) {
         showAlert('error', 'Error de descarga', 'Ocurrió un error de red');
         console.error('Error downloading song:', error);
@@ -215,21 +218,31 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
         setDownloadPhase(null);
       }
     },
-    [refreshSongs]
+    [refreshSongs],
   );
 
   useEffect(() => {
     const handleRecovery = async () => {
       if (downloadingId && downloadingQueue.length > 0) {
-        const currentSong = downloadingQueue.find((song) => song.id === downloadingId);
+        const currentSong = downloadingQueue.find(
+          song => song.id === downloadingId,
+        );
 
         if (currentSong) {
-          const isAlreadyDownloaded = songs.some((song) => song.id === downloadingId);
+          const isAlreadyDownloaded = songs.some(
+            song => song.id === downloadingId,
+          );
 
           if (isAlreadyDownloaded) {
-            setDownloadingQueue((prev) => prev.filter((song) => song.id !== downloadingId));
+            setDownloadingQueue(prev =>
+              prev.filter(song => song.id !== downloadingId),
+            );
             setDownloadingId(null);
-            showAlert('success', 'Download completed', 'Song was downloaded successfully');
+            showAlert(
+              'success',
+              'Download completed',
+              'Song was downloaded successfully',
+            );
           }
         }
       }
@@ -255,7 +268,9 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
 
       if (!downloadingId) {
         await downloadSong(currentSong);
-        setDownloadingQueue((prev) => prev.filter((song) => song.id !== currentSong.id));
+        setDownloadingQueue(prev =>
+          prev.filter(song => song.id !== currentSong.id),
+        );
       }
 
       setIsProcessing(false);
@@ -275,5 +290,9 @@ export const DownloadProvider = ({ children }: { children: ReactNode }) => {
     downloadPhase,
   };
 
-  return <DownloadContext.Provider value={value}>{children}</DownloadContext.Provider>;
+  return (
+    <DownloadContext.Provider value={value}>
+      {children}
+    </DownloadContext.Provider>
+  );
 };

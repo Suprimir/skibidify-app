@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { Playlist, Song } from 'types/Song';
+import type { Playlist, Song } from '../../types/Song';
 
 export interface SongContextType {
   songs: Song[];
@@ -10,9 +10,15 @@ export interface SongContextType {
   deleteSong: (songId: string) => Promise<boolean>;
   createPlaylist: (customName?: string) => Promise<Playlist | null>;
   deletePlaylist: (playlistId: string) => Promise<boolean>;
-  updatePlaylist: (playlistId: string, updates: Partial<Playlist>) => Promise<boolean>;
+  updatePlaylist: (
+    playlistId: string,
+    updates: Partial<Playlist>,
+  ) => Promise<boolean>;
   addSongToPlaylist: (playlistId: string, song: Song) => Promise<boolean>;
-  removeSongFromPlaylist: (playlistId: string, songId: string) => Promise<boolean>;
+  removeSongFromPlaylist: (
+    playlistId: string,
+    songId: string,
+  ) => Promise<boolean>;
 }
 
 export const SongContext = createContext<SongContextType | null>(null);

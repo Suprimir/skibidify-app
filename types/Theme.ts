@@ -9,7 +9,6 @@ export interface ThemeColors {
   border: string;
   ring: string;
   accent: string;
-
   primary50: string;
   primary100: string;
   primary200: string;
@@ -21,13 +20,4 @@ export interface ThemeColors {
   primary800: string;
   primary900: string;
   primary950: string;
-}
-
-export interface ThemeContextValue {
-  mode: ThemeMode;
-  accent: ThemeAccent;
-  colors: ThemeColors;
-  setMode: (mode: ThemeMode) => void;
-  setAccent: (accent: ThemeAccent) => void;
-  toggleMode: () => void;
 }

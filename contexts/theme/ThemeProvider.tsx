@@ -1,7 +1,7 @@
 import { useEffect, useState, ReactNode, useContext } from 'react';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeAccent, ThemeColors, ThemeMode } from 'types/Theme';
+import { ThemeAccent, ThemeColors, ThemeMode } from '../../types/Theme';
 import { ThemeContext } from './themeContext';
 
 const themeColors: Record<`${ThemeMode}-${ThemeAccent}`, ThemeColors> = {
@@ -152,7 +152,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       try {
         const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         if (savedTheme) {
-          const [savedMode, savedAccent] = savedTheme.split('-') as [ThemeMode, ThemeAccent];
+          const [savedMode, savedAccent] = savedTheme.split('-') as [
+            ThemeMode,
+            ThemeAccent,
+          ];
           if (savedMode && savedAccent) {
             setModeState(savedMode);
             setAccentState(savedAccent);
@@ -211,7 +214,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
+      <StatusBar
+        barStyle={mode === 'dark' ? 'light-content' : 'dark-content'}
+      />
       {children}
     </ThemeContext.Provider>
   );

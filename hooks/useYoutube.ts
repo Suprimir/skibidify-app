@@ -1,6 +1,6 @@
-import { getKey } from 'config/storageConfig';
+import { getKey } from '../../config/storageConfig';
 import { Alert } from 'react-native';
-import { Song, SongBase } from 'types/Song';
+import { SongBase } from '../../types/Song';
 import {
   PlaylistItem,
   PlaylistResponse,
@@ -8,13 +8,13 @@ import {
   SearchResponse,
   VideoItem,
   VideoResponse,
-} from 'types/YoutubeSearch';
+} from '../../types/YoutubeSearch';
 
 export function convertToSongs(
   items: SearchItem[] | PlaylistItem[] | VideoItem[],
-  source: 'search' | 'playlist' | 'video'
+  source: 'search' | 'playlist' | 'video',
 ): SongBase[] {
-  return items.map((item) => {
+  return items.map(item => {
     let id: string;
     let snippet;
 
@@ -130,7 +130,7 @@ export const useYoutube = () => {
     if (!apiKey || !apiUrl) return;
 
     const endpoint = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(
-      searchTerm
+      searchTerm,
     )}&videoCategoryId=10&maxResults=10&order=relevance&key=${apiKey}`;
 
     try {

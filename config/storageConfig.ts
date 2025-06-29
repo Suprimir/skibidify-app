@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
 
 export const setKey = async (key: string, value: string): Promise<void> => {
   try {
@@ -15,7 +14,9 @@ export const getKey = async (key: string): Promise<string> => {
   const value = await AsyncStorage.getItem(key);
 
   if (value === null) {
-    throw new Error(`${key} not found, please setup this key in settings menu.`);
+    throw new Error(
+      `${key} not found, please setup this key in settings menu.`,
+    );
   }
 
   return value;

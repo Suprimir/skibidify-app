@@ -1,9 +1,9 @@
 import { createContext } from 'react';
-import { YouTubeSearchItem } from 'types/YoutubeSearch';
+import { SongBase } from '../../types/Song';
 
 export interface SearchContextType {
-  searchItems: YouTubeSearchItem[];
-  setSearchItems: (items: YouTubeSearchItem[]) => void;
+  searchItems: SongBase[];
+  setSearchItems: (items: SongBase[]) => void;
 }
 
 export const SearchContext = createContext<SearchContextType | null>(null);

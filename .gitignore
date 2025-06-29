@@ -12,10 +12,15 @@ web-build/
 
 
 .env
-
-ios
-android
-
+android/app/.cxx/
+android/.gradle/
+android/build/
+ios/build/
+android/app/build/
+android/.gradle/
+android/build/
+*.apk
+*.so
 # macOS
 .DS_Store
 

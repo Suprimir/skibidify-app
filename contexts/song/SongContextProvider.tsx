@@ -1,30 +1,34 @@
-import type { Playlist, Song } from 'types/Song';
+import type { Playlist, Song } from '../../types/Song';
 import { useEffect, useState } from 'react';
 import { SongContext } from './songContext';
-import * as FileSystem from 'expo-file-system';
+import RNFS from 'react-native-fs';
 
 export const SongProvider = ({ children }: { children: React.ReactNode }) => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const SONGS_DATA_JSON = FileSystem.documentDirectory + 'songs-data.json';
-  const PLAYLISTS_DATA_JSON = FileSystem.documentDirectory + 'playlists-data.json';
+  const SONGS_DATA_JSON = `${RNFS.DocumentDirectoryPath}/songs-data.json`;
+  const PLAYLISTS_DATA_JSON = `${RNFS.DocumentDirectoryPath}/playlists-data.json`;
 
   const generateUUID = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      },
+    );
   };
+
   const getAllSongs = async (): Promise<Song[]> => {
     try {
       let existingData: Song[] = [];
-      const fileInfo = await FileSystem.getInfoAsync(SONGS_DATA_JSON);
+      const fileExists = await RNFS.exists(SONGS_DATA_JSON);
 
-      if (fileInfo.exists) {
-        const content = await FileSystem.readAsStringAsync(SONGS_DATA_JSON);
+      if (fileExists) {
+        const content = await RNFS.readFile(SONGS_DATA_JSON, 'utf8');
         existingData = JSON.parse(content) as Song[];
       }
       return existingData;
@@ -37,10 +41,10 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
   const getAllPlaylists = async (): Promise<Playlist[]> => {
     try {
       let existingData: Playlist[] = [];
-      const fileInfo = await FileSystem.getInfoAsync(PLAYLISTS_DATA_JSON);
+      const fileExists = await RNFS.exists(PLAYLISTS_DATA_JSON);
 
-      if (fileInfo.exists) {
-        const content = await FileSystem.readAsStringAsync(PLAYLISTS_DATA_JSON);
+      if (fileExists) {
+        const content = await RNFS.readFile(PLAYLISTS_DATA_JSON, 'utf8');
         existingData = JSON.parse(content) as Playlist[];
       }
       return existingData;
@@ -75,7 +79,7 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
       const currentSongs = await getAllSongs();
       const currentPlaylists = await getAllPlaylists();
 
-      const songToDelete = currentSongs.find((song) => song.id === songId);
+      const songToDelete = currentSongs.find(song => song.id === songId);
 
       if (!songToDelete) {
         console.error('Canción no encontrada');
@@ -83,27 +87,35 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const fileInfo = await FileSystem.getInfoAsync(songToDelete.fileUri);
-        if (fileInfo.exists) {
-          await FileSystem.deleteAsync(songToDelete.fileUri);
-          console.log('Archivo de audio eliminado:', songToDelete.fileUri);
+        // Limpiar la URI del archivo si tiene el prefijo file://
+        const cleanUri = songToDelete.fileUri.replace('file://', '');
+        const fileExists = await RNFS.exists(cleanUri);
+
+        if (fileExists) {
+          await RNFS.unlink(cleanUri);
+          console.log('Archivo de audio eliminado:', cleanUri);
         }
       } catch (error) {
         console.error('Error al eliminar archivo de audio:', error);
       }
 
-      const updatedSongs = currentSongs.filter((song) => song.id !== songId);
+      const updatedSongs = currentSongs.filter(song => song.id !== songId);
 
-      await FileSystem.writeAsStringAsync(SONGS_DATA_JSON, JSON.stringify(updatedSongs, null, 2));
+      await RNFS.writeFile(
+        SONGS_DATA_JSON,
+        JSON.stringify(updatedSongs, null, 2),
+        'utf8',
+      );
 
-      const updatedPlaylists = currentPlaylists.map((playlist) => ({
+      const updatedPlaylists = currentPlaylists.map(playlist => ({
         ...playlist,
-        songs: playlist.songs.filter((id) => id !== songId),
+        songs: playlist.songs.filter(id => id !== songId),
       }));
 
-      await FileSystem.writeAsStringAsync(
+      await RNFS.writeFile(
         PLAYLISTS_DATA_JSON,
-        JSON.stringify(updatedPlaylists, null, 2)
+        JSON.stringify(updatedPlaylists, null, 2),
+        'utf8',
       );
 
       refreshSongs();
@@ -119,7 +131,7 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const createPlaylist = async (customName?: string): Promise<Playlist | null> => {
+  const createPlaylist = async (): Promise<Playlist | null> => {
     try {
       setIsLoading(true);
       const currentPlaylists = await getAllPlaylists();
@@ -127,20 +139,20 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
       const newPlaylist: Playlist = {
         id: generateUUID(),
         image: '',
-        name: customName || `Playlist #${currentPlaylists.length + 1}`,
+        name: `Playlist #${currentPlaylists.length + 1}`,
         songs: [],
       };
 
       const updatedPlaylists = [...currentPlaylists, newPlaylist];
 
-      await FileSystem.writeAsStringAsync(
+      await RNFS.writeFile(
         PLAYLISTS_DATA_JSON,
-        JSON.stringify(updatedPlaylists, null, 2)
+        JSON.stringify(updatedPlaylists, null, 2),
+        'utf8',
       );
 
       await refreshPlaylists();
 
-      console.log('Playlist creada exitosamente:', newPlaylist.name);
       return newPlaylist;
     } catch (error) {
       console.error('Error al crear playlist:', error);
@@ -154,11 +166,14 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
       const currentPlaylists = await getAllPlaylists();
-      const filteredPlaylists = currentPlaylists.filter((p) => p.id !== playlistId);
+      const filteredPlaylists = currentPlaylists.filter(
+        p => p.id !== playlistId,
+      );
 
-      await FileSystem.writeAsStringAsync(
+      await RNFS.writeFile(
         PLAYLISTS_DATA_JSON,
-        JSON.stringify(filteredPlaylists, null, 2)
+        JSON.stringify(filteredPlaylists, null, 2),
+        'utf8',
       );
 
       await refreshPlaylists();
@@ -173,18 +188,19 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updatePlaylist = async (
     playlistId: string,
-    updates: Partial<Playlist>
+    updates: Partial<Playlist>,
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
       const currentPlaylists = await getAllPlaylists();
-      const updatedPlaylists = currentPlaylists.map((playlist) =>
-        playlist.id === playlistId ? { ...playlist, ...updates } : playlist
+      const updatedPlaylists = currentPlaylists.map(playlist =>
+        playlist.id === playlistId ? { ...playlist, ...updates } : playlist,
       );
 
-      await FileSystem.writeAsStringAsync(
+      await RNFS.writeFile(
         PLAYLISTS_DATA_JSON,
-        JSON.stringify(updatedPlaylists, null, 2)
+        JSON.stringify(updatedPlaylists, null, 2),
+        'utf8',
       );
 
       await refreshPlaylists();
@@ -197,17 +213,20 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const addSongToPlaylist = async (playlistId: string, song: Song): Promise<boolean> => {
+  const addSongToPlaylist = async (
+    playlistId: string,
+    song: Song,
+  ): Promise<boolean> => {
     try {
       const currentPlaylists = await getAllPlaylists();
-      const targetPlaylist = currentPlaylists.find((p) => p.id === playlistId);
+      const targetPlaylist = currentPlaylists.find(p => p.id === playlistId);
 
       if (!targetPlaylist) {
         console.error('Playlist no encontrada');
         return false;
       }
 
-      if (targetPlaylist.songs.some((s) => s === song.id)) {
+      if (targetPlaylist.songs.some(s => s === song.id)) {
         console.log('La canción ya existe en la playlist');
         return false;
       }
@@ -220,17 +239,20 @@ export const SongProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const removeSongFromPlaylist = async (playlistId: string, songId: string): Promise<boolean> => {
+  const removeSongFromPlaylist = async (
+    playlistId: string,
+    songId: string,
+  ): Promise<boolean> => {
     try {
       const currentPlaylists = await getAllPlaylists();
-      const targetPlaylist = currentPlaylists.find((p) => p.id === playlistId);
+      const targetPlaylist = currentPlaylists.find(p => p.id === playlistId);
 
       if (!targetPlaylist) {
         console.error('Playlist no encontrada');
         return false;
       }
 
-      const updatedSongs = targetPlaylist.songs.filter((s) => s !== songId);
+      const updatedSongs = targetPlaylist.songs.filter(s => s !== songId);
       return await updatePlaylist(playlistId, { songs: updatedSongs });
     } catch (error) {
       console.error('Error al remover canción de playlist:', error);
